@@ -1,65 +1,67 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
-const allowanceRoutes = require('./routes/allowanceRoutes');
-const connectDB = require('./config/db');
-const allowances = [];
 const dotenv = require('dotenv');
-const contractRoutes = require('./routes/contractRoutes');
 
-
+// Load environment variables
 dotenv.config();
-connectDB();
+
+// Initialize the Express app
 const app = express();
 
-app.use(cors({ origin: 'http://localhost:3000' }));
-
+// Middleware
 app.use(express.json());
 
-// Allowance Routes
-app.use('/api/allowances', allowanceRoutes);
+const corsOptions = {
+  origin: process.env.ALLOWED_ORIGIN || '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use(cors(corsOptions)); 
 
-// Get all allowances
-app.get("/api/allowances", (req, res) => {
-    res.json(allowances);
-  });
-  
-  // Create a new allowance
-  app.post("/api/allowances", (req, res) => {
-    console.log("Received POST request:", req.body);
-    const newAllowance = { id: Date.now(), ...req.body };
-    allowances.push(newAllowance);
-    res.status(201).json(newAllowance);
-  });
-  
-  // Update an allowance
-  app.put("/api/allowances/:id", (req, res) => {
-    const id = parseInt(req.params.id);
-    const index = allowances.findIndex((a) => a.id === id);
-    if (index !== -1) {
-      allowances[index] = { ...allowances[index], ...req.body };
-      res.json(allowances[index]);
-    } else {
-      res.status(404).json({ message: "Allowance not found" });
-    }
-  });
-  
-  // Delete an allowance
-  app.delete("/api/allowances/:id", (req, res) => {
-    const id = parseInt(req.params.id);
-    const index = allowances.findIndex((a) => a.id === id);
-    if (index !== -1) {
-      allowances.splice(index, 1);
-      res.status(204).send();
-    } else {
-      res.status(404).json({ message: "Allowance not found" });
-    }
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((err) => {
+    console.error('MongoDB connection error:', err.message);
+    process.exit(1); // Exit process on database connection error
   });
 
+// Import routes
+const assetRoutes = require('./routes/assets');
+const assetBatchRoutes = require('./routes/assetBatchRoutes');
+const assetHistoryRoutes = require('./routes/assetHistory'); // Ensure the file path is correct
+const assetDashboardRoutes = require('./routes/assetDashboardRoutes');
+const holidayRoutes = require('./routes/holidays');
+const companyHolidaysRoute = require('./routes/companyHolidays');
+const restrictLeaveRoutes = require('./routes/restrictLeaveRoutes');
+const faqRoutes = require('./routes/faqRoutes');
+const faqCategoryRoutes = require('./routes/faqCategoryRoutes');
 
+// Use the routes
+app.use('/api/assets', assetRoutes);
+app.use('/api/asset-batches', assetBatchRoutes);
+app.use('/api/assetHistory', assetHistoryRoutes); 
+app.use('/api/dashboard', assetDashboardRoutes);
+app.use('/api/holidays', holidayRoutes);
+app.use('/api/companyHolidays', companyHolidaysRoute);
+app.use('/api/restrictLeaves', restrictLeaveRoutes);
+app.use('/api/faqRoutes', faqRoutes);
+app.use('/api/faqCategories', faqCategoryRoutes);
 
-  // Contract Routes
-app.use("/api/contracts", contractRoutes);
+// Default route
+app.get('/', (req, res) => {
+  res.send('Asset Management API is running');
+});
 
+// Global error handling middleware for better error management
+app.use((err, req, res, next) => {
+  console.error('Global Error:', err.message);
+  res.status(500).json({ message: 'Internal server error' });
+});
+
+// Start the server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
