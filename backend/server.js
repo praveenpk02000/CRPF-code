@@ -1,33 +1,65 @@
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
+const allowanceRoutes = require('./routes/allowanceRoutes');
 const connectDB = require('./config/db');
-const candidateRoutes = require('./routes/candidateRoutes');
-const surveyRoutes = require('./routes/surveyRoutes'); // Import survey routes
-const applicantProfileRoutes = require('./routes/applicantProfileRoutes');
-const interviewRoutes = require('./routes/interviewRoutes');
-const skillZoneRoutes = require('./routes/skillZoneRoutes');
+const allowances = [];
+const dotenv = require('dotenv');
+const contractRoutes = require('./routes/contractRoutes');
 
-// Initialize Express app
+
+dotenv.config();
+connectDB();
 const app = express();
 
-// Middleware
-app.use(cors());
-app.use(bodyParser.json());
+app.use(cors({ origin: 'http://localhost:3000' }));
 
-// Connect to MongoDB
-connectDB();
+app.use(express.json());
 
-// API Routes
-app.use(candidateRoutes);  
-app.use(surveyRoutes); 
-app.use('/api/applicantProfiles', applicantProfileRoutes);
-app.use('/api/interviews', interviewRoutes);
-app.use('/api/skill-zone', skillZoneRoutes);
+// Allowance Routes
+app.use('/api/allowances', allowanceRoutes);
+
+// Get all allowances
+app.get("/api/allowances", (req, res) => {
+    res.json(allowances);
+  });
+  
+  // Create a new allowance
+  app.post("/api/allowances", (req, res) => {
+    console.log("Received POST request:", req.body);
+    const newAllowance = { id: Date.now(), ...req.body };
+    allowances.push(newAllowance);
+    res.status(201).json(newAllowance);
+  });
+  
+  // Update an allowance
+  app.put("/api/allowances/:id", (req, res) => {
+    const id = parseInt(req.params.id);
+    const index = allowances.findIndex((a) => a.id === id);
+    if (index !== -1) {
+      allowances[index] = { ...allowances[index], ...req.body };
+      res.json(allowances[index]);
+    } else {
+      res.status(404).json({ message: "Allowance not found" });
+    }
+  });
+  
+  // Delete an allowance
+  app.delete("/api/allowances/:id", (req, res) => {
+    const id = parseInt(req.params.id);
+    const index = allowances.findIndex((a) => a.id === id);
+    if (index !== -1) {
+      allowances.splice(index, 1);
+      res.status(204).send();
+    } else {
+      res.status(404).json({ message: "Allowance not found" });
+    }
+  });
 
 
-// Server listening
+
+  // Contract Routes
+app.use("/api/contracts", contractRoutes);
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+

@@ -1,85 +1,91 @@
-import React, { useState, useEffect } from 'react';
-import './Header.css';
-import { FaBell, FaCog } from 'react-icons/fa'; 
-import { HiMenu } from 'react-icons/hi';
-import { MdLanguage } from 'react-icons/md';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignInAlt, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import React, {useState,useEffect} from 'react'
+import {FaBell, FaCog, FaGlobe, FaSignOutAlt} from 'react-icons/fa'
+import {BiTime} from 'react-icons/bi'
+import './Header.css'
 
 const Header = () => {
-  const [timer, setTimer] = useState(0);
-  const [isTimerRunning, setIsTimerRunning] = useState(false);
-  const [startTime, setStartTime] = useState(null);
+    const [currentTime, setCurrentTime] = useState('')
+    const [showDropdown, setShowDropdown] = useState(false);
 
-  useEffect(() => {
-    let interval;
-    if (isTimerRunning) {
-      interval = setInterval(() => {
-        setTimer(Math.floor((new Date() - startTime) / 1000));
-      }, 1000);
-    } else {
-      clearInterval(interval);
+    const getCurrentTime = () => {
+        const now = new Date()
+        return now.toLocaleTimeString()   // Returns time as HH:MM:SS
     }
 
-    return () => clearInterval(interval);
-  }, [isTimerRunning, startTime]);
+// Update time every second
+useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(getCurrentTime());
+    }, 1000); // Update every 1000ms (1 second)
 
-  const formatTime = (seconds) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
+    // Cleanup interval on component unmount
+    return () => clearInterval(timer);
+  }, []); // Empty dependency array to run only on mount/unmount
 
-  const handleTimerClick = () => {
-    if (isTimerRunning) {
-      setIsTimerRunning(false);
-    } else {
-      setStartTime(new Date());
-      setIsTimerRunning(true);
-      setTimer(0);
+
+    const toggleDropdown = () => {
+        setShowDropdown(!showDropdown)
     }
-  };
+    
 
   return (
-    <header className="header">
-      <div className="header-left">
-        <HiMenu className="menu-icon animate" />
-        <span className="header-logo">DB4CLOUD</span>
-      </div>
-
-      <div className="header-center">
-        <button
-          className={`timer-button ${isTimerRunning ? 'active' : ''}`}
-          onClick={handleTimerClick}
-          title={isTimerRunning ? "Click to check-out" : "Click to check-in"}
-        >
-          {isTimerRunning ? (
-            <>
-              <FontAwesomeIcon icon={faSignOutAlt} flip className="timer-icon rotate" />
-              <span>{`Checked in... ${formatTime(timer)}`}</span>
-            </>
-          ) : (
-            <>
-              <FontAwesomeIcon icon={faSignInAlt} beat className="timer-icon" />
-              <span>Check-in</span>
-            </>
-          )}
-        </button>
-      </div>
-
-      <div className="header-right">
-        <FaCog className="header-icon icon-animate" title="Settings" />
-        <FaBell className="header-icon notification-icon icon-animate" title="Notifications" />
-        <MdLanguage className="header-icon icon-animate" title="Language" />
-        
-        <div className="user-profile">
-          <span className="user-initials">S</span>
-          <span className="user-name">Subikshan</span>
+    <header className='bg-container'>
+      <div className='header'>
+        <div className="header-left">
+        <button className='menu-button'></button>
+        <h1>DB4CLOUD</h1>
         </div>
-      </div>
-    </header>
-  );
-};
 
-export default Header;
+        <div className="header-right">
+          {/*  <p>You cannot mark attendence from this network</p> */}
+
+                {/* Time display*/ }
+                <div className="time-box">
+                    <BiTime className='time-icon' />
+                    <span>{currentTime}</span>
+                </div>
+
+                {/*Icons for notificatins, settings, etc. */}
+                <FaBell className='icon' title='Notifications' />
+                <FaCog className="icon" title="Settings" />
+                <FaGlobe className='icon' title='Language' />
+
+                {/* User Profile with dropdown*/ }
+
+                <div className="user-profile" onClick={toggleDropdown}>
+                    <div className="user-avatar">
+                    < img src="https://th.bing.com/th/id/OIP.Pgv1PargHCECE7gCB5kJ-wHaKx?rs=1&pid=ImgDetMain" 
+                alt="user-Avatar" className="avatar" />
+                    </div>
+                    <span className="user-name">Sangeeta</span>
+
+{showDropdown && (
+    <div className="dropdown">
+        <ul>
+            <li>Profile</li>
+            <li>Setting</li>
+            <li>
+                <FaSignOutAlt /> Logout
+            </li>
+        </ul>
+    </div>
+)}
+
+</div>
+
+     {  /*      <div className="user-info">
+                <span className='user-name'>Shalu</span>
+                < img src="https://th.bing.com/th/id/OIP.Pgv1PargHCECE7gCB5kJ-wHaKx?rs=1&pid=ImgDetMain" 
+                alt="user-Avatar" className="avatar" />
+            </div>
+            */ }
+        </div>
+        
+        
+      </div>
+
+    </header>
+  )
+}
+
+export default Header
