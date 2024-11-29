@@ -1,93 +1,127 @@
-import React, { useState } from 'react';
-import { List, ListItem, ListItemIcon, ListItemText, Collapse } from '@mui/material';
-import {
-  Dashboard,
-  Group,
-  FlightTakeoff,
-  AccountCircle,
-  TimeToLeave,
-  ExitToApp,
-  Payment,
-  TrendingUp,
-  Computer,
-  HeadsetMic,
-  Build,
-} from '@mui/icons-material';
-import './Sidebar.css'; // Import the CSS file
+import React, {useState} from "react";
+import { NavLink } from "react-router-dom";
 
-const Sidebar = ({ setSelectedPage }) => {
-  const [activeItem, setActiveItem] = useState('Dashboard');
-  const [openSubmenus, setOpenSubmenus] = useState({});
-
-  const menuItems = [
-    { text: 'Dashboard', icon: <Dashboard />, subItems: [] },
-    { text: 'Recruitment', icon: <Group />, subItems: ['Recruitment Dashboard','Recruitment Pipeline', 'Recruitment Survey','Recruitment Candidate','Interview','Skill Zone','Open Jobs'] },
-    { text: 'Onboarding', icon: <FlightTakeoff />, subItems: ['Onboarding View', 'Candidates View'] },
-    { text: 'Employee', icon: <AccountCircle />, subItems: ['Directory', 'Profile'] },
-    { text: 'Attendance', icon: <TimeToLeave />, subItems: ['View', 'Report'] },
-    { text: 'Leave', icon: <ExitToApp />, subItems: ['Apply', 'History'] },
-    { text: 'Payroll', icon: <Payment />, subItems: ['Salary Slip', 'Deductions'] },
-    { text: 'Performance', icon: <TrendingUp />, subItems: ['Review', 'Goals'] },
-    { text: 'Offboarding', icon: <ExitToApp />, subItems: ['Exit Interview', 'Feedback'] },
-    { text: 'Assets', icon: <Computer />, subItems: ['Inventory', 'Requests'] },
-    { text: 'Help Desk', icon: <HeadsetMic />, subItems: ['Tickets', 'FAQ'] },
-    { text: 'Configuration', icon: <Build />, subItems: ['Settings', 'Roles'] },
-  ];
-
-  const handleMenuItemClick = (item) => {
-    setActiveItem(item.text);
-    setSelectedPage(item.text);
-    toggleSubmenu(item.text);
+import "./Sidebar.css"
+const Sidebar = () => {
+  const [isPayrollOpen, setIsPayrollOpen] = useState(false);
+  const togglePayrollMenu = () => {
+    setIsPayrollOpen(!isPayrollOpen);
   };
 
-  const handleSubItemClick = (subItem) => {
-    setActiveItem(subItem);
-    setSelectedPage(subItem);
-  };
 
-  const toggleSubmenu = (itemText) => {
-    setOpenSubmenus((prev) => ({
-      ...prev,
-      [itemText]: !prev[itemText],
-    }));
-  };
+const [isPerformanceOpen, setisPerformanceOpen] = useState(false)
+const togglePerformanceMenu = () => {
+  setisPerformanceOpen(!isPerformanceOpen)
+}
+
+const [isExitProcessOpen, setIsExitProcessOpen] = useState(false)
+const toggleExitMenu = () => {
+  setIsExitProcessOpen(!isExitProcessOpen)
+}
+
 
   return (
+    <div className="container">
     <div className="sidebar">
-      <div className="logo">
-        DB4CLOUD
-        <div style={{ fontSize: '14px', color: '#c7c7d1' }}>Here Technology Rises Ahead of Sun!!</div>
-      </div>
-      <List className="menuList">
-        {menuItems.map((item) => (
-          <div key={item.text}>
-            <ListItem
-              button
-              onClick={() => handleMenuItemClick(item)}
-              className={`menuItem ${activeItem === item.text ? 'activeMenuItem' : ''}`}
-            >
-              <ListItemIcon className="icon">{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItem>
-            {item.subItems.length > 0 && (
-              <Collapse in={openSubmenus[item.text]} timeout="auto" unmountOnExit>
-                <List component="div" disablePadding>
-                  {item.subItems.map((subItem) => (
-                    <ListItem
-                      button
-                      key={subItem}
-                      className={`submenuItem ${activeItem === subItem ? 'activeMenuItem' : ''}`}
-                      onClick={() => handleSubItemClick(subItem)}
-                    >
-                      <ListItemText primary={subItem} />
-                    </ListItem>
-                  ))}
-                </List>
-              </Collapse>
+      <h2>DB4CLOUD Technologies Pvt Ltd.</h2>
+      <ul className="sidebar-list">
+      <li>
+          <NavLink to="/dashboard" activeClassName="active">
+            Dashboard
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/recruitment" activeClassName="active">
+            Recruitment
+          </NavLink>
+          <ul>
+            <li><NavLink to="/recruitment/dashboard">Dashboard</NavLink></li>
+            <li><NavLink to="/recruitment/pipeline">Recruitment Pipeline</NavLink></li>
+            <li><NavLink to="/recruitment/survey">Recruitment Survey</NavLink></li>
+            <li><NavLink to="/recruitment/candidates">Candidates</NavLink></li>
+            <li><NavLink to="/recruitment/open-jobs">Open Jobs</NavLink></li>
+          </ul>
+        </li>
+        {/* Add more items as needed */}
+        <li>
+          <NavLink to="/onboarding" activeClassName="active">
+            Onboarding
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/employee" activeClassName="active">
+            Employee
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/leave" activeClassName="active">
+            Leave
+          </NavLink>
+        </li>
+            {/* Payroll section */}
+        <li>
+          <NavLink to="/payroll" activeClassName="active" className="menu-toggle" onClick={togglePayrollMenu}>
+            Payroll
+          </NavLink>  
+
+          {isPayrollOpen && (
+            <ul className="submenu">
+              <li><NavLink to="/payroll/payroll-dashboard">Dashboard</NavLink></li>
+              <li><NavLink to="/payroll/allowances">Allowances</NavLink></li>
+              <li><NavLink to="/payroll/contract">Contracts</NavLink></li>
+              <li><NavLink to="/payroll/deductions">Deductions</NavLink></li>
+              <li><NavLink to="/payroll/payslips">Payslips</NavLink></li>
+              <li><NavLink to="/payroll/federal-tax">Federal Tax</NavLink></li>
+            </ul>
+          )}
+        </li>
+        <li>
+          <NavLink to="/performance" activeClassName="active" className="menu-toggle" onClick={togglePerformanceMenu}>
+            Performance
+          </NavLink>
+          {isPerformanceOpen && (
+            <ul className="submenu">
+                  <li><NavLink to="/performance/performance-dashboard">Dashboard</NavLink></li>
+                  <li><NavLink to="/performance/objectives">Objectives</NavLink></li>
+                  <li><NavLink to="/performance/feedback">360 Feedback</NavLink></li>
+                  
+                </ul>
+          )
+
+          }
+
+        </li>
+        <li>
+          <NavLink to="/offboarding" activeClassName="active" className="menu-toggle" onClick={toggleExitMenu}>
+            Offboarding
+            </NavLink>
+            {isExitProcessOpen && (
+              <ul className="submenu">
+              <li><NavLink to="/offboarding/exit-process">Exit Process</NavLink></li>
+              <li><NavLink to="/offboarding/resignation-letter">Resignation Letters</NavLink></li>  
+            </ul>
             )}
-          </div>
-        ))}
-      </List>
+          
+        </li>
+
+        <li>
+          <NavLink to="/assets" activeClassName="active">
+            Assets 
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/help-desk" activeClassName="active">
+            Help Desk
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/configuration" activeClassName="active">
+            Configuration
+          </NavLink>
+        </li>
+      </ul>
+    </div>
+    
     </div>
   );
 };
