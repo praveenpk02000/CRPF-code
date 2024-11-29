@@ -1,13 +1,20 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose"
+import colors from 'colors'
 
-const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
-    console.log(`MongoDB Connected Successfully: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`Error: ${error.message}`);
-    process.exit(1);
-  }
-};
+const userName = encodeURIComponent('rickyharish30')
+const password = encodeURIComponent('LBGUaMDLUuNs7NTb')
+const URL = `mongodb+srv://${userName}:${password}@hrms.e4ytt.mongodb.net/?retryWrites=true&w=majority&appName=HRMS` || process.env.MONGO_URI
 
-module.exports = connectDB;
+const connectDB =async()=>{
+
+    try{
+    const conn = await mongoose.connect(URL)
+    console.log(`MongoDB Connected: ${ conn.connection.host}`.cyan.underline)
+    }catch(error)
+    {
+        console.log(`Error:${error.message}`.red.underline.bold)
+        process.exit(1)
+    }
+}
+
+export default connectDB
